@@ -18,7 +18,7 @@ import java.util.Collection;
 public class PrincipalDetails implements UserDetails {
 
 
-    private User user; //콤포지션
+    private User user;
 
     public PrincipalDetails(User user) {
         this.user = user;
