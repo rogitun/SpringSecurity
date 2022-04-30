@@ -23,4 +23,8 @@ public class User {
 
     @CreationTimestamp
     private Timestamp createDate;
+
+    public String hello(){
+        return "hello";
+    }
 }

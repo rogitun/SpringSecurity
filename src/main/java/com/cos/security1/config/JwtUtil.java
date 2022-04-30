@@ -3,6 +3,7 @@ package com.cos.security1.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -13,26 +14,29 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtUtil {
     private String SECRET_KEY = "secret";
     //토큰에서 유저네임 가져옴, 수정 가능
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        log.info("extractUsername Call ");
+        String s = extractClaim(token, Claims::getSubject);
+        return s;
     }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
     //클레임 리졸버를 통해 어떤 클레임인지 알아낸다.
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        log.info("extractClaim Call ");
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-
     private Claims extractAllClaims(String token) {
+        log.info("extractAllClaim Call ");
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private Boolean isTokenExpired(String token) {

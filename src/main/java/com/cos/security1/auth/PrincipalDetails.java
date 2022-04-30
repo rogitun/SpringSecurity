@@ -9,18 +9,21 @@ package com.cos.security1.auth;
 //시큐리티 세션에 저장되는 객체는 Authentication, Authentication에 저장되는 유저 객체는 UserDetails
 
 import com.cos.security1.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Slf4j
 public class PrincipalDetails implements UserDetails {
 
 
     private User user;
 
     public PrincipalDetails(User user) {
+        log.info("userDetails call");
         this.user = user;
     }
 

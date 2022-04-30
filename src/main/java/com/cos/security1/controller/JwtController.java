@@ -8,21 +8,26 @@ import com.cos.security1.model.UserRequest;
 import com.cos.security1.model.UserResponse;
 import com.cos.security1.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.function.Function;
+
+
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class JwtController {
 
     private final AuthenticationManager authenticationManager;
@@ -34,6 +39,10 @@ public class JwtController {
 
     @GetMapping("/hello")
     public String hello(){
+        //String authorization = request.getHeader("Authorization");
+        //권한이 되는지 체크 필요함
+        //Boolean aBoolean = jwtUtil.validateToken(authorization.substring(7), temp);//bearer 제외하고
+        //System.out.println(aBoolean);
         return "hello";
     }
 
@@ -52,13 +61,15 @@ public class JwtController {
     public ResponseEntity<?> createAuthenticationToken(@RequestBody UserRequest userRequest) throws Exception {
 
         try {
+            log.info("Authentication Manager call");
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userRequest.getUsername(),userRequest.getPassword())
             );
             //인증이 실패하면
         }catch(BadCredentialsException e){
-            throw new Exception("부정확한 정보입니다.",e);
+            throw new Exception("BadCredential.",e);
         }
+        System.out.println("############ Authentication Pass ##############");
         final PrincipalDetails userDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userRequest.getUsername());
 
         final String jwt = jwtUtil.generateToken(userDetails);

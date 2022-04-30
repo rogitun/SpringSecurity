@@ -3,6 +3,7 @@ package com.cos.security1.config;
 import com.cos.security1.auth.PrincipalDetails;
 import com.cos.security1.auth.PrincipalDetailsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,15 +20,16 @@ import java.io.IOException;
 //요청 당 한번만 작동하는 필터
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final PrincipalDetailsService principalDetailsService;
 
     private final JwtUtil jwtUtil;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        log.info("DoFilterCall");
 
         final String authorizationHeader = request.getHeader("Authorization");
 
@@ -35,9 +37,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String jwt = null;
 
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
+            log.info("jwtRequestFilterCall");
             jwt = authorizationHeader.substring(7);
-//            System.out.println("########################");
-//            System.out.println(jwt);
             username = jwtUtil.extractUsername(jwt);
         }
 
@@ -46,7 +47,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             PrincipalDetails userDetails = (PrincipalDetails) this.principalDetailsService.loadUserByUsername(username);
 
             //JWT가 유효한지 체킹
-            if(jwtUtil.validateToken(jwt,userDetails)){
+            //if(jwtUtil.validateToken(jwt,userDetails)){
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,null,userDetails.getAuthorities());
 
@@ -55,7 +56,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
-        }
+        //}
         chain.doFilter(request,response);
     }
 }
